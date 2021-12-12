@@ -114,6 +114,7 @@ function listenMqtt(defaultFuncs, api, ctx, globalCallback) {
   });
 
   mqttClient.on('message', function(topic, message, packet) {
+    try {
     var jsonMessage = JSON.parse(message);
     if(topic === "/t_ms") {
       if(jsonMessage.firstDeltaSeqId && jsonMessage.syncToken) {
@@ -126,7 +127,7 @@ function listenMqtt(defaultFuncs, api, ctx, globalCallback) {
       }
 
       if(jsonMessage.queueEntityId && ctx.globalOptions.pageID &&
-        ctx.globalOptions.pageID != jsonMessage.queueEntityId) {
+        ctx.globalOptions.pageID != jsonMessage.queueEntityId) {opic
         return;
       }
 
@@ -160,7 +161,14 @@ function listenMqtt(defaultFuncs, api, ctx, globalCallback) {
         }
       }
     }
-
+    } catch (e) {
+      return globalCallback({
+        error: "There was a problem parsing MQTT packet data. Please provide this error in issues: https://github.com/Schmavery/facebook-chat-api/issues/895. Thank you.",
+        topic,
+        message,
+        packet
+      });
+    }
   });
 
   mqttClient.on('close', function() {
